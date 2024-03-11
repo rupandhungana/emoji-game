@@ -1,6 +1,6 @@
 import EmojiPicker from "emoji-picker-react";
 import { useEffect, useRef, useState } from "react";
-import FPSCounter from "@sethwebster/react-fps-counter";
+// import FPSCounter from "@sethwebster/react-fps-counter";
 import { prominent } from "color.js";
 
 const GameCanvas = () => {
