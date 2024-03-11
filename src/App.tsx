@@ -1,4 +1,3 @@
-import React from "react";
 import GameCanvas from "./components/canvas";
 
 const App = () => {

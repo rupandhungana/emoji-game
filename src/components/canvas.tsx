@@ -1,5 +1,5 @@
 import EmojiPicker from "emoji-picker-react";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { prominent } from "color.js";
 
 const GameCanvas = () => {
