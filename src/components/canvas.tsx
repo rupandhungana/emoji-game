@@ -6,6 +6,7 @@ import { prominent } from "color.js";
 const GameCanvas = () => {
   const [selectEmoji, setSelectEmoji] = useState<boolean>(false);
   const [debugPannel, setDebugPannel] = useState<boolean>(false);
+  const [infoPannel, setInfoPannel] = useState<boolean>(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [gameStatus, setGameStatus] = useState<"Playing" | "Ended" | "Loading">(
     "Loading"
@@ -394,6 +395,50 @@ const GameCanvas = () => {
         >
           🪲
         </button>
+        <button
+          className="btn"
+          style={{
+            marginLeft: 4,
+          }}
+          onClick={() => {
+            setInfoPannel(!infoPannel);
+          }}
+        >
+          {"ℹ️"}
+        </button>
+        {infoPannel && (
+          <div
+            style={{
+              position: "absolute",
+              top: 50,
+              right: -100,
+              backgroundColor: "#fafafa",
+              color: "#000",
+              width: 400,
+              padding: 4,
+              fontSize: 16,
+            }}
+          >
+            <p>
+              Developer: <b>Rupan Dhungana</b>
+            </p>
+            <p>
+              Github:{" "}
+              <a
+                href="https://github.com/rupandhungana/emoji-game"
+                target="_blank"
+              >
+                https://github.com/rupandhungana/emoji-game
+              </a>
+            </p>
+            <p>
+              Language: <b>React + TypeScript</b>
+            </p>
+            <p>
+              Info: <b>has bugs and more..</b>
+            </p>
+          </div>
+        )}
         {debugPannel && (
           <div
             style={{
