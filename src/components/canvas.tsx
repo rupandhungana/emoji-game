@@ -1,5 +1,6 @@
 import EmojiPicker from "emoji-picker-react";
 import { useEffect, useRef, useState } from "react";
+import FPSCounter from "@sethwebster/react-fps-counter";
 import { prominent } from "color.js";
 
 const GameCanvas = () => {
@@ -33,7 +34,7 @@ const GameCanvas = () => {
     rotationAngle: 0,
     direction: {
       x: Math.cos(Math.random() * 8 * Math.PI + 2),
-      y: Math.sin(Math.random() * 8 * Math.PI + 2),
+      y: Math.sin(Math.random() * 8 * Math.PI + 3),
     },
   });
 
@@ -59,15 +60,15 @@ const GameCanvas = () => {
           )`;
       } else if (score < 10) {
         ctx.fillStyle = `rgb(
-          ${ball.colors[2][0]},
-          ${ball.colors[2][1]},
-          ${ball.colors[2][2]}
+          ${ball.colors[1][0]},
+          ${ball.colors[1][1]},
+          ${ball.colors[1][2]}
           )`;
       } else {
         ctx.fillStyle = `rgb(
-          ${ball.colors[2][0]},
-          ${ball.colors[2][1]},
-          ${ball.colors[2][2]}
+          ${ball.colors[0][0]},
+          ${ball.colors[0][1]},
+          ${ball.colors[0][2]}
           )`;
       }
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -189,7 +190,7 @@ const GameCanvas = () => {
         // Check if the ball hits the top or bottom side of the controller
         if (
           ball.y >= controller.y &&
-          ball.y <= controller.y + controller.height
+          ball.y <= controller.y + controller.height - ball.radius
         ) {
           // If the ball hits the top or bottom side of the controller
           setScore((pre) => pre + 1);
@@ -275,6 +276,10 @@ const GameCanvas = () => {
       x: 150,
       y: 300,
       velocity: 2,
+      direction: {
+        x: Math.cos(Math.random() * 8 * Math.PI + 2),
+        y: Math.sin(Math.random() * 8 * Math.PI + 3),
+      },
     });
   };
 
@@ -400,6 +405,13 @@ const GameCanvas = () => {
               fontSize: 14,
             }}
           >
+            {/*  <p>
+              <b>FPS</b>
+              <FPSCounter visible={true} targetFrameRate={60}/>
+            </p> */}
+            <p>
+              <b>Game Status</b>: {gameStatus}
+            </p>
             <p>
               <b>Velocity</b>: {ball.velocity}
             </p>
