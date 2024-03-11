@@ -414,7 +414,7 @@ const GameCanvas = () => {
               right: -100,
               backgroundColor: "#fafafa",
               color: "#000",
-              width: 400,
+              width: 300,
               padding: 4,
               fontSize: 16,
             }}
@@ -427,6 +427,9 @@ const GameCanvas = () => {
               <a
                 href="https://github.com/rupandhungana/emoji-game"
                 target="_blank"
+                style={{
+                  fontSize: 12
+                }}
               >
                 https://github.com/rupandhungana/emoji-game
               </a>
