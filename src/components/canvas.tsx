@@ -193,11 +193,11 @@ const GameCanvas = () => {
           // If the ball hits the top or bottom side of the controller
           setScore((pre) => pre + 1);
           // alert("++");
-          let newX = (ball.direction.x *= Math.random() - 2);
-          let newY = (ball.direction.y *= Math.random() - 2);
+          // let newX = (ball.direction.x *= Math.random() - 2);
+          let newY = (ball.direction.y *= -1);
           setBall((prevBall) => ({
             ...prevBall,
-            direction: { x: newX, y: newY },
+            direction: { ...prevBall.direction, y: newY },
           }));
         } else {
           // If the ball hits the left or right side of the controller
@@ -206,9 +206,10 @@ const GameCanvas = () => {
             ball.x >= controller.x + controller.width
           ) {
             // If the ball hits the left or right side of the controller
+            let newX = (ball.direction.x *= -1);
             setBall((prevBall) => ({
               ...prevBall,
-              direction: { ...prevBall.direction, x: -prevBall.direction.x },
+              direction: { ...prevBall.direction, x: newX },
             }));
           }
         }
@@ -363,7 +364,7 @@ const GameCanvas = () => {
         <canvas ref={canvasRef} width={400} height={650} />
       </div>
 
-      <div style={{ position: "absolute", top: 10 }}>
+      <div style={{ position: "absolute", top: 0 }}>
         <button
           className="btn"
           onClick={() => {
