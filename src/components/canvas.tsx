@@ -32,6 +32,7 @@ const GameCanvas = () => {
     y: 650 / 2,
     velocity: 2,
     rotationAngle: 0,
+    startTime: Date.now(),
     direction: {
       x: Math.cos(Math.random() * 8 * Math.PI + 2),
       y: Math.sin(Math.random() * 8 * Math.PI + 3),
@@ -280,6 +281,7 @@ const GameCanvas = () => {
         x: Math.cos(Math.random() * 8 * Math.PI + 2),
         y: Math.sin(Math.random() * 8 * Math.PI + 3),
       },
+      startTime: Date.now(),
     });
   };
 
@@ -409,6 +411,9 @@ const GameCanvas = () => {
               <b>FPS</b>
               <FPSCounter visible={true} targetFrameRate={60}/>
             </p> */}
+            <p>
+              <b>Played Time</b>: {Date.now() - ball.startTime}
+            </p>
             <p>
               <b>Game Status</b>: {gameStatus}
             </p>

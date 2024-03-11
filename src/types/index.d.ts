@@ -3,7 +3,7 @@ interface Ball {
   x: number;
   y: number;
   size: number;
-  // lastUpdateTime: number;
+  startTime: number;
 
   colors: number[][];
 
