@@ -4,6 +4,7 @@ import { prominent } from "color.js";
 
 const GameCanvas = () => {
   const [selectEmoji, setSelectEmoji] = useState<boolean>(false);
+  const [debugPannel, setDebugPannel] = useState<boolean>(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [gameStatus, setGameStatus] = useState<"Playing" | "Ended" | "Loading">(
     "Loading"
@@ -31,8 +32,8 @@ const GameCanvas = () => {
     velocity: 2,
     rotationAngle: 0,
     direction: {
-      x: Math.cos(Math.random() * 8 * Math.PI),
-      y: Math.sin(Math.random() * 8 * Math.PI),
+      x: Math.cos(Math.random() * 8 * Math.PI + 2),
+      y: Math.sin(Math.random() * 8 * Math.PI + 2),
     },
   });
 
@@ -195,7 +196,7 @@ const GameCanvas = () => {
           // alert("++");
           // let newX = (ball.direction.x *= Math.random() - 2);
           let newY = (ball.direction.y *= -1);
-          let newV = ball.velocity + 0.01;
+          let newV = ball.velocity + 0.1;
           setBall((prevBall) => ({
             ...prevBall,
             velocity: newV,
@@ -375,6 +376,50 @@ const GameCanvas = () => {
         >
           {ball.emoji}
         </button>
+        <button
+          className="btn"
+          style={{
+            marginLeft: 4,
+          }}
+          onClick={() => {
+            setDebugPannel(!debugPannel);
+          }}
+        >
+          🪲
+        </button>
+        {debugPannel && (
+          <div
+            style={{
+              position: "absolute",
+              top: 50,
+              right: -50,
+              backgroundColor: "#fafafa",
+              color: "#000",
+              width: 250,
+              padding: 4,
+              fontSize: 14,
+            }}
+          >
+            <p>
+              <b>Velocity</b>: {ball.velocity}
+            </p>
+            <p>
+              <b>Score</b>: {score}
+            </p>
+            <p>
+              <b>Ball Pos X</b>: {ball.x}
+            </p>
+            <p>
+              <b>Ball Pos Y</b>: {ball.y}
+            </p>
+            <p>
+              <b>Ball Direction X</b>: {ball.direction.x}
+            </p>
+            <p>
+              <b>Ball Direction Y</b>: {ball.direction.y}
+            </p>
+          </div>
+        )}
         {selectEmoji && (
           <EmojiPicker
             style={{
