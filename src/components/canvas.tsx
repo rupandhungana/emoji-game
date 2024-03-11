@@ -364,7 +364,7 @@ const GameCanvas = () => {
         <canvas ref={canvasRef} width={400} height={650} />
       </div>
 
-      <div style={{ position: "absolute", top: 0 }}>
+      <div style={{ position: "absolute", top: 10 }}>
         <button
           className="btn"
           onClick={() => {
