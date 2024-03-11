@@ -195,8 +195,10 @@ const GameCanvas = () => {
           // alert("++");
           // let newX = (ball.direction.x *= Math.random() - 2);
           let newY = (ball.direction.y *= -1);
+          let newV = ball.velocity + 0.01;
           setBall((prevBall) => ({
             ...prevBall,
+            velocity: newV,
             direction: { ...prevBall.direction, y: newY },
           }));
         } else {
