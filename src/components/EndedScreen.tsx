@@ -51,15 +51,17 @@ opacity: 1;
           .fill(null)
           .map((_, i) => {
             const spacing = 1; // Adjust this value as needed to control the spacing between raindrops
-            const fallDistance = Math.random() * 350 + 20;
+            const fallDistance = Math.random() * 350 + 5;
+            const rotation = Math.random() * 360; // Random rotation angle
             return (
               <div
                 className="rain-ball"
                 style={{
                   position: "absolute",
                   top: spacing * i, // Adjust the spacing
-                  left: `${Math.random() * 350}px`,
+                  left: `${Math.random() * 350 + (spacing * i) / 100}px`,
                   animationDelay: `${Math.random() * 200}ms`,
+                  transform: `rotate(${rotation}deg)`,
                   fontSize: "42px",
                   animation: `fallAnimation ease-in-out 2s forwards`,
                   animationTimingFunction: "cubic-bezier(0.42, 0, 0.80, 1)",
@@ -74,14 +76,14 @@ opacity: 1;
                 {ball.emoji}
                 <style>
                   {`
-          @keyframes fallAnimation${i} {
-            0% {
-              transform: translateY(-50px);
-            }
-            100% {
-              transform: translateY(${fallDistance}px);
-            }
-          }
+       @keyframes fallAnimation${i} {
+        0% {
+          transform: translateY(-50px) rotate(${rotation * 4}deg);;
+        }
+        100% {
+          transform: translateY(${fallDistance}px) rotate(${rotation}deg);
+        }
+      }
         `}
                 </style>
               </div>
