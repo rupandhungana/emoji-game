@@ -18,7 +18,7 @@ const GameCanvas = () => {
   const [score, setScore] = useState<number>(0);
   const [controller, setController] = useState<Controller>({
     x: 75,
-    y: 600,
+    y: window.innerHeight - 50 * 2,
     width: 100,
     height: 30,
   });
@@ -227,7 +227,7 @@ const GameCanvas = () => {
     };
 
     const gameOver = () => {
-      if (ball.y >= canvas.height - ball.size - ball.radius + ball.radius / 2) {
+      if (ball.y >= canvas.height - (ball.size + ball.radius * 2)) {
         setGameStatus("Ended");
       }
     };
@@ -236,12 +236,21 @@ const GameCanvas = () => {
         ball.x + (ball.size - ball.radius) >= controller.x &&
         ball.x - (ball.size - ball.radius) <= controller.x + controller.width &&
         ball.y + (ball.size - ball.radius) >= controller.y &&
-        ball.y - (ball.size - ball.radius) <= controller.y + controller.height
+        ball.y - (ball.size - ball.radius) <=
+          controller.y + controller.height + ball.size + ball.radius
       ) {
-        if (ball.y - (ball.size + ball.radius) <= controller.y) {
+        if (
+          /* ball.y -
+            (ball.size - ball.radius) +
+            (ball.velocity * ball.speed * ball.direction.x +
+              ball.direction.y) <=
+          controller.y + ball.radius */
+          ball.y - (ball.size + ball.radius) <=
+          controller.y
+        ) {
           setScore((prevScore) => prevScore + 1);
-          const newX = ball.direction.x * 1; // Reverse the x direction
-          const newY = ball.direction.y * -1; // Reverse the y direction
+          const newX = ball.direction.x * 1.1; // Reverse the x direction
+          const newY = ball.direction.y * -1.1; // Reverse the y direction
           const newV = ball.velocity + 0.01;
           const newS = ball.speed + 0.05;
           setBall((prevBall) => ({
@@ -250,10 +259,7 @@ const GameCanvas = () => {
             speed: newS,
             direction: { x: newX, y: newY },
           }));
-        } else if (
-          ball.y + (ball.size - ball.radius) >=
-          controller.y + controller.height
-        ) {
+        } else {
           setGameStatus("Ended");
         }
       }
@@ -283,11 +289,13 @@ const GameCanvas = () => {
             ...prevController,
             x: Math.max(
               prevController.x -
-                25 +
-                (ball.speed +
-                  ball.velocity +
-                  ball.direction.y +
-                  ball.direction.x),
+                Math.abs(
+                  30 +
+                    ball.speed *
+                      ball.velocity *
+                      ball.direction.y *
+                      ball.direction.x
+                ),
               0
             ),
           }));
@@ -299,11 +307,13 @@ const GameCanvas = () => {
             ...prevController,
             x: Math.min(
               prevController.x +
-                25 +
-                ball.speed *
-                  ball.velocity *
-                  ball.direction.y *
-                  ball.direction.x,
+                Math.abs(
+                  30 *
+                    ball.speed *
+                    ball.velocity *
+                    ball.direction.y *
+                    ball.direction.x
+                ),
               canvas.width - prevController.width
             ),
           }));
@@ -363,7 +373,7 @@ const GameCanvas = () => {
             handlePlayAgain={handlePlayAgain}
           />
         )}
-        <canvas ref={canvasRef} width={400} height={650} />
+        <canvas ref={canvasRef} width={400} height={window.innerHeight - 50} />
       </div>
 
       <div style={{ position: "absolute", top: 10 }}>
