@@ -12,7 +12,7 @@ const GameCanvas = () => {
   const [infoPannel, setInfoPannel] = useState<boolean>(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [gameStatus, setGameStatus] = useState<"Playing" | "Ended" | "Loading">(
-    "Ended"
+    "Loading"
   );
   //to debug f600
   const [score, setScore] = useState<number>(0);
