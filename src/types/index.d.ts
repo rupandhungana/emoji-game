@@ -3,6 +3,7 @@ interface Ball {
   x: number;
   y: number;
   size: number;
+  speed: number;
   startTime: number;
 
   colors: number[][];

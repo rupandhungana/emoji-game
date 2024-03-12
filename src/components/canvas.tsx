@@ -2,6 +2,8 @@ import EmojiPicker from "emoji-picker-react";
 import { useEffect, useRef, useState } from "react";
 // import FPSCounter from "@sethwebster/react-fps-counter";
 import { prominent } from "color.js";
+import DebugPannel from "./DebugPannel";
+import InfoPannel from "./InfoPannel";
 
 const GameCanvas = () => {
   const [selectEmoji, setSelectEmoji] = useState<boolean>(false);
@@ -16,7 +18,7 @@ const GameCanvas = () => {
   const [controller, setController] = useState<Controller>({
     x: 75,
     y: 600,
-    width: 150,
+    width: 100,
     height: 15,
   });
   const [ball, setBall] = useState<Ball>({
@@ -28,15 +30,16 @@ const GameCanvas = () => {
       [255, 220, 60],
     ],
     radius: 10,
+    speed: 2,
     size: 30,
     x: 400 / 2,
     y: 650 / 2,
-    velocity: 2,
+    velocity: 1,
     rotationAngle: 0,
     startTime: Date.now(),
     direction: {
-      x: Math.cos(Math.random() * 8 * Math.PI + 2),
-      y: Math.sin(Math.random() * 8 * Math.PI + 3),
+      x: Math.cos(((Math.random() * 20 + 60) * Math.PI) / 180), // Angle between 60 and 80 degrees (more towards the right)
+      y: -Math.sin(((Math.random() * 10 + 80) * Math.PI) / 180), // Angle between 80 and 90 degrees (moving upward)
     },
   });
 
@@ -54,6 +57,7 @@ const GameCanvas = () => {
 
     const draw = () => {
       // ctx.fillStyle = canvasBgColor;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       if (score < 5) {
         ctx.fillStyle = `rgb(
           ${ball.colors[3][0]},
@@ -83,8 +87,6 @@ const GameCanvas = () => {
         bounceBall();
         controllerBounce();
         gameOver();
-        /*   window.addEventListener("keydown", handleKeyPress);
-        window.addEventListener("touchmove", handleTouchMove); */
       }
     };
 
@@ -116,18 +118,20 @@ const GameCanvas = () => {
     const updateEmojiBall = () => {
       setBall((pre) => ({
         ...pre,
-        x: (pre.x += ball.direction.x * pre.velocity),
-        y: (pre.y += ball.direction.y * pre.velocity),
-        velocity: pre.velocity + 0.0002,
+        x: (pre.x += pre.direction.x * pre.velocity * pre.speed),
+        y: (pre.y += pre.direction.y * pre.velocity * pre.speed),
+        velocity: pre.velocity + 0.0001,
+        speed: pre.speed + 0.0001,
         rotationAngle: pre.rotationAngle + 1,
       }));
     };
     const bounceBall = () => {
       // right
-      if (ball.x + ball.radius * 3 >= canvas.width) {
+      if (ball.x + ball.radius >= canvas.width) {
         let newx = (ball.direction.x *= -1);
         setBall((pre) => ({
           ...pre,
+          speed: pre.speed + 0.001,
           direction: {
             ...pre.direction,
             x: newx,
@@ -139,6 +143,7 @@ const GameCanvas = () => {
         let newx = (ball.direction.x *= -1);
         setBall((pre) => ({
           ...pre,
+          speed: pre.speed + 0.001,
           direction: {
             ...pre.direction,
             x: newx,
@@ -146,10 +151,11 @@ const GameCanvas = () => {
         }));
       }
       // top side
-      if (canvas.height - ball.y + ball.radius * 3 >= canvas.height) {
+      if (canvas.height - ball.y + ball.radius >= canvas.height) {
         let newy = (ball.direction.y *= -1);
         setBall((pre) => ({
           ...pre,
+          speed: pre.speed + 0.001,
           direction: {
             ...pre.direction,
             y: newy,
@@ -184,43 +190,46 @@ const GameCanvas = () => {
     };
     const controllerBounce = () => {
       if (
-        ball.x + ball.radius >= controller.x &&
-        ball.x - ball.radius <= controller.x + controller.width &&
-        ball.y + ball.radius >= controller.y &&
-        ball.y - ball.radius <= controller.y + controller.height
+        ball.x + (ball.size - ball.radius) >= controller.x &&
+        ball.x - (ball.size - ball.radius) <= controller.x + controller.width &&
+        ball.y + (ball.size - ball.radius) >= controller.y &&
+        ball.y - (ball.size - ball.radius) <= controller.y + controller.height
       ) {
-        // Check if the ball hits the top or bottom side of the controller
-        if (
-          ball.y >= controller.y &&
-          ball.y <= controller.y + controller.height - ball.radius
-        ) {
-          // If the ball hits the top or bottom side of the controller
-          setScore((pre) => pre + 1);
-          // alert("++");
-          // let newX = (ball.direction.x *= Math.random() - 2);
-          let newY = (ball.direction.y *= -1);
-          let newV = ball.velocity + 0.1;
+        if (ball.y - (ball.size + ball.radius) <= controller.y) {
+          setScore((prevScore) => prevScore + 1);
+          let newX = ball.direction.x * 1; // Reverse the x direction
+          let newY = ball.direction.y * -1; // Reverse the y direction
+          let newV = ball.velocity + 0.01;
+          let newS = ball.speed + 0.01;
           setBall((prevBall) => ({
             ...prevBall,
             velocity: newV,
-            direction: { ...prevBall.direction, y: newY },
+            speed: newS,
+            direction: { x: newX, y: newY },
           }));
-        } else {
-          // If the ball hits the left or right side of the controller
-          if (
-            ball.x <= controller.x ||
-            ball.x >= controller.x + controller.width
-          ) {
-            // If the ball hits the left or right side of the controller
-            let newX = (ball.direction.x *= -1);
-            setBall((prevBall) => ({
-              ...prevBall,
-              direction: { ...prevBall.direction, x: newX },
-            }));
-          }
+        } else if (
+          ball.y + (ball.size - ball.radius) >=
+          controller.y + controller.height
+        ) {
+          setGameStatus("Ended");
         }
       }
     };
+
+    const intervalId = setInterval(draw, 5);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [ball, controller, gameStatus, canvasRef]);
+
+  // controller
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
     const handleKeyPress = (e: KeyboardEvent) => {
       if (gameStatus != "Playing") return;
@@ -229,7 +238,15 @@ const GameCanvas = () => {
           if (controller.x <= 0) return;
           setController((prevController) => ({
             ...prevController,
-            x: Math.max(prevController.x - 10, 0),
+            x: Math.max(
+              prevController.x -
+                25 +
+                (ball.speed +
+                  ball.velocity +
+                  ball.direction.y +
+                  ball.direction.x),
+              0
+            ),
           }));
           break;
         }
@@ -238,12 +255,19 @@ const GameCanvas = () => {
           setController((prevController) => ({
             ...prevController,
             x: Math.min(
-              prevController.x + 10,
+              prevController.x +
+                25 +
+                ball.speed *
+                  ball.velocity *
+                  ball.direction.y *
+                  ball.direction.x,
               canvas.width - prevController.width
             ),
           }));
           break;
         }
+        default:
+          break;
       }
     };
     const handleTouchMove = (e: TouchEvent) => {
@@ -258,17 +282,15 @@ const GameCanvas = () => {
         x: newX,
       }));
     };
-    const intervalId = setInterval(draw, 5);
 
     window.addEventListener("keydown", handleKeyPress);
     window.addEventListener("touchmove", handleTouchMove);
 
     return () => {
-      clearInterval(intervalId);
       window.removeEventListener("keydown", handleKeyPress);
       window.removeEventListener("touchmove", handleTouchMove);
     };
-  }, [score, ball, controller, gameStatus, canvasRef]);
+  }, [gameStatus]);
 
   const handlePlayAgain = () => {
     setGameStatus("Playing");
@@ -277,12 +299,14 @@ const GameCanvas = () => {
       ...ball,
       x: 150,
       y: 300,
-      velocity: 2,
+      speed: 2,
+      velocity: 1,
       direction: {
-        x: Math.cos(Math.random() * 8 * Math.PI + 2),
-        y: Math.sin(Math.random() * 8 * Math.PI + 3),
+        x: Math.cos(((Math.random() * 20 + 60) * Math.PI) / 180), // Angle between 60 and 80 degrees (more towards the right)
+        y: -Math.sin(((Math.random() * 10 + 80) * Math.PI) / 180), // Angle between 80 and 90 degrees (moving upward)
       },
       startTime: Date.now(),
+      rotationAngle: 0,
     });
   };
 
@@ -406,84 +430,9 @@ const GameCanvas = () => {
         >
           {"ℹ️"}
         </button>
-        {infoPannel && (
-          <div
-            style={{
-              position: "absolute",
-              top: 50,
-              right: -100,
-              backgroundColor: "#fafafa",
-              color: "#000",
-              width: 300,
-              padding: 4,
-              fontSize: 16,
-            }}
-          >
-            <p>
-              Developer: <b>Rupan Dhungana</b>
-            </p>
-            <p>
-              Github:{" "}
-              <a
-                href="https://github.com/rupandhungana/emoji-game"
-                target="_blank"
-                style={{
-                  fontSize: 12
-                }}
-              >
-                https://github.com/rupandhungana/emoji-game
-              </a>
-            </p>
-            <p>
-              Language: <b>React + TypeScript</b>
-            </p>
-            <p>
-              Info: <b>has bugs and more..</b>
-            </p>
-          </div>
-        )}
+        {infoPannel && <InfoPannel />}
         {debugPannel && (
-          <div
-            style={{
-              position: "absolute",
-              top: 50,
-              right: -50,
-              backgroundColor: "#fafafa",
-              color: "#000",
-              width: 250,
-              padding: 4,
-              fontSize: 14,
-            }}
-          >
-            {/*  <p>
-              <b>FPS</b>
-              <FPSCounter visible={true} targetFrameRate={60}/>
-            </p> */}
-            <p>
-              <b>Played Time</b>: {Date.now() - ball.startTime}
-            </p>
-            <p>
-              <b>Game Status</b>: {gameStatus}
-            </p>
-            <p>
-              <b>Velocity</b>: {ball.velocity}
-            </p>
-            <p>
-              <b>Score</b>: {score}
-            </p>
-            <p>
-              <b>Ball Pos X</b>: {ball.x}
-            </p>
-            <p>
-              <b>Ball Pos Y</b>: {ball.y}
-            </p>
-            <p>
-              <b>Ball Direction X</b>: {ball.direction.x}
-            </p>
-            <p>
-              <b>Ball Direction Y</b>: {ball.direction.y}
-            </p>
-          </div>
+          <DebugPannel ball={ball} gameStatus={gameStatus} score={score} />
         )}
         {selectEmoji && (
           <EmojiPicker
@@ -494,7 +443,6 @@ const GameCanvas = () => {
             }}
             autoFocusSearch={false}
             onEmojiClick={async (emoji) => {
-              console.log(emoji);
               prominent(emoji.imageUrl, { amount: 5 }).then((color) => {
                 if (gameStatus === "Ended") handlePlayAgain();
                 setBall({
@@ -502,6 +450,7 @@ const GameCanvas = () => {
                   emoji: emoji.emoji,
                   colors: color.slice(1) as number[][],
                 });
+                setSelectEmoji(false);
               });
             }}
           />
