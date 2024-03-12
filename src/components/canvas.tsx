@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { prominent } from "color.js";
 import DebugPannel from "./DebugPannel";
 import InfoPannel from "./InfoPannel";
+import EndedScreen from "./EndedScreen";
 
 const GameCanvas = () => {
   const [selectEmoji, setSelectEmoji] = useState<boolean>(false);
@@ -11,7 +12,7 @@ const GameCanvas = () => {
   const [infoPannel, setInfoPannel] = useState<boolean>(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [gameStatus, setGameStatus] = useState<"Playing" | "Ended" | "Loading">(
-    "Loading"
+    "Ended"
   );
   //to debug f600
   const [score, setScore] = useState<number>(0);
@@ -19,7 +20,7 @@ const GameCanvas = () => {
     x: 75,
     y: 600,
     width: 100,
-    height: 15,
+    height: 30,
   });
   const [ball, setBall] = useState<Ball>({
     emoji: "😀",
@@ -31,7 +32,7 @@ const GameCanvas = () => {
     ],
     radius: 10,
     speed: 2,
-    size: 30,
+    size: 40,
     x: 400 / 2,
     y: 650 / 2,
     velocity: 1,
@@ -98,7 +99,7 @@ const GameCanvas = () => {
       ctx.fillText(ball.emoji, -ball.radius, ball.radius / 2); // Draw the emoji
       ctx.restore(); // Restore the saved state to prevent affecting other drawings */
 
-      ctx.font = `${ball.radius * 3}px serif`;
+      ctx.font = `${ball.size}px serif`;
       /*  ctx.filter = `rotate(80deg)`;
       ctx.fillText(ball.emoji, ball.x - ball.radius, ball.y + ball.radius / 2); */
 
@@ -108,7 +109,7 @@ const GameCanvas = () => {
 
       // Calculate the width and height of the rotated text
       const textWidth = ctx.measureText(ball.emoji).width;
-      const textHeight = ball.radius * 3;
+      const textHeight = ball.size;
 
       // Draw the text at an offset to keep it centered
       ctx.fillText(ball.emoji, -textWidth / 2, textHeight / 4);
@@ -128,7 +129,7 @@ const GameCanvas = () => {
     const bounceBall = () => {
       // right
       if (ball.x + ball.radius >= canvas.width) {
-        let newx = (ball.direction.x *= -1);
+        const newx = (ball.direction.x *= -1);
         setBall((pre) => ({
           ...pre,
           speed: pre.speed + 0.001,
@@ -140,7 +141,7 @@ const GameCanvas = () => {
       }
       // left side
       if (canvas.width - ball.x + ball.radius >= canvas.width) {
-        let newx = (ball.direction.x *= -1);
+        const newx = (ball.direction.x *= -1);
         setBall((pre) => ({
           ...pre,
           speed: pre.speed + 0.001,
@@ -152,7 +153,7 @@ const GameCanvas = () => {
       }
       // top side
       if (canvas.height - ball.y + ball.radius >= canvas.height) {
-        let newy = (ball.direction.y *= -1);
+        const newy = (ball.direction.y *= -1);
         setBall((pre) => ({
           ...pre,
           speed: pre.speed + 0.001,
@@ -175,16 +176,58 @@ const GameCanvas = () => {
       ctx.fillText(text, centerX - textWidth / 2, centerY + textHeight / 2);
     };
     const drawController = () => {
+      const cornerRadius = controller.height / 2; // Adjust the corner radius as needed
       ctx.fillStyle = "black";
-      ctx.fillRect(
-        controller.x,
-        controller.y,
-        controller.width,
-        controller.height
+      ctx.beginPath();
+      // Top left corner
+      ctx.arc(
+        controller.x + cornerRadius,
+        controller.y + cornerRadius,
+        cornerRadius,
+        Math.PI,
+        Math.PI * 1.5
       );
+      // Top edge
+      ctx.lineTo(controller.x + controller.width - cornerRadius, controller.y);
+      // Top right corner
+      ctx.arc(
+        controller.x + controller.width - cornerRadius,
+        controller.y + cornerRadius,
+        cornerRadius,
+        Math.PI * 1.5,
+        Math.PI * 2
+      );
+      // Right edge
+      ctx.lineTo(
+        controller.x + controller.width,
+        controller.y + controller.height - cornerRadius
+      );
+      // Bottom right corner
+      ctx.arc(
+        controller.x + controller.width - cornerRadius,
+        controller.y + controller.height - cornerRadius,
+        cornerRadius,
+        0,
+        Math.PI * 0.5
+      );
+      // Bottom edge
+      ctx.lineTo(controller.x + cornerRadius, controller.y + controller.height);
+      // Bottom left corner
+      ctx.arc(
+        controller.x + cornerRadius,
+        controller.y + controller.height - cornerRadius,
+        cornerRadius,
+        Math.PI * 0.5,
+        Math.PI
+      );
+      // Left edge
+      ctx.lineTo(controller.x, controller.y + cornerRadius);
+      ctx.closePath();
+      ctx.fill();
     };
+
     const gameOver = () => {
-      if (ball.y >= canvas.height - ball.radius) {
+      if (ball.y >= canvas.height - ball.size - ball.radius + ball.radius / 2) {
         setGameStatus("Ended");
       }
     };
@@ -197,10 +240,10 @@ const GameCanvas = () => {
       ) {
         if (ball.y - (ball.size + ball.radius) <= controller.y) {
           setScore((prevScore) => prevScore + 1);
-          let newX = ball.direction.x * 1; // Reverse the x direction
-          let newY = ball.direction.y * -1; // Reverse the y direction
-          let newV = ball.velocity + 0.01;
-          let newS = ball.speed + 0.01;
+          const newX = ball.direction.x * 1; // Reverse the x direction
+          const newY = ball.direction.y * -1; // Reverse the y direction
+          const newV = ball.velocity + 0.01;
+          const newS = ball.speed + 0.05;
           setBall((prevBall) => ({
             ...prevBall,
             velocity: newV,
@@ -221,7 +264,7 @@ const GameCanvas = () => {
     return () => {
       clearInterval(intervalId);
     };
-  }, [ball, controller, gameStatus, canvasRef]);
+  }, [ball, controller, gameStatus, canvasRef, score]);
 
   // controller
   useEffect(() => {
@@ -290,7 +333,7 @@ const GameCanvas = () => {
       window.removeEventListener("keydown", handleKeyPress);
       window.removeEventListener("touchmove", handleTouchMove);
     };
-  }, [gameStatus]);
+  }, [gameStatus, controller, ball]);
 
   const handlePlayAgain = () => {
     setGameStatus("Playing");
@@ -314,87 +357,11 @@ const GameCanvas = () => {
     <>
       <div style={{ position: "relative" }}>
         {gameStatus === "Ended" && (
-          <div
-            style={{
-              inset: 0,
-              position: "absolute",
-              backgroundColor: `rgb(
-                ${ball.colors[0][0] + 40},
-                ${ball.colors[0][1] + 40},
-                ${ball.colors[0][2] + 40}
-                )`,
-              animation: "gameOverAnimation 0.5s ease-in-out forwards",
-            }}
-          >
-            <style>
-              {`@keyframes gameOverAnimation {
-  0% {
-    transform: scale(0);
-    opacity: 0;
-  }
-
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}`}
-            </style>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                width: "100%",
-                height: "100%",
-              }}
-            >
-              {Array(20)
-                .fill(null)
-                .map((_, i) => {
-                  const fallDistance = Math.random() * 450 + 10;
-                  return (
-                    <div
-                      className="rain-ball"
-                      style={{
-                        position: "absolute",
-                        top: 20,
-                        left: `${Math.random() * 250}px`,
-                        animationDelay: `${Math.random() * 250}ms`,
-                        fontSize: "32px",
-                        animation: `fallAnimation ease-in-out 2s forwards`,
-                        animationTimingFunction:
-                          "cubic-bezier(0.42, 0, 0.80, 1)", // Optional: ease-in-out timing function
-                        animationIterationCount: "1", // Optional: Only play the animation once
-                        animationFillMode: "forwards", // Optional: Keep the element in its final state after the animation finishes
-                        animationDirection: "normal", // Optional: Play the animation forward
-                        animationPlayState: "running", // Optional: Start the animation
-                        animationName: `fallAnimation${i}`, // Use a unique animation name for each ball
-                      }}
-                      key={`${ball.emoji}_${i}`}
-                    >
-                      {ball.emoji}
-                      <style>
-                        {`
-                  @keyframes fallAnimation${i} {
-                    0% {
-                      transform: translateY(-50px);
-                    }
-                    100% {
-                      transform: translateY(${fallDistance}px);
-                    }
-                  }
-                `}
-                      </style>
-                    </div>
-                  );
-                })}
-              <h1>{score}</h1>
-              <button className="btn" onClick={handlePlayAgain}>
-                Play again
-              </button>
-            </div>
-          </div>
+          <EndedScreen
+            score={score}
+            ball={ball}
+            handlePlayAgain={handlePlayAgain}
+          />
         )}
         <canvas ref={canvasRef} width={400} height={650} />
       </div>
