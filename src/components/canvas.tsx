@@ -1,6 +1,5 @@
 import EmojiPicker from "emoji-picker-react";
 import { useEffect, useRef, useState } from "react";
-// import FPSCounter from "@sethwebster/react-fps-counter";
 import { prominent } from "color.js";
 import DebugPannel from "./DebugPannel";
 import InfoPannel from "./InfoPannel";
@@ -43,7 +42,10 @@ const GameCanvas = () => {
       y: -Math.sin(((Math.random() * 10 + 80) * Math.PI) / 180), // Angle between 80 and 90 degrees (moving upward)
     },
   });
-
+  const playAudio = () => {
+    const audio = new Audio("/audio/bounce.wav");
+    audio.play();
+  };
   useEffect(() => {
     if (gameStatus !== "Ended") setGameStatus("Playing");
     // console.log(ball);
@@ -128,7 +130,7 @@ const GameCanvas = () => {
     };
     const bounceBall = () => {
       // right
-      if (ball.x + ball.radius >= canvas.width) {
+      if (ball.x + ball.size >= canvas.width) {
         const newx = (ball.direction.x *= -1);
         setBall((pre) => ({
           ...pre,
@@ -140,7 +142,7 @@ const GameCanvas = () => {
         }));
       }
       // left side
-      if (canvas.width - ball.x + ball.radius >= canvas.width) {
+      if (canvas.width - ball.x + ball.size >= canvas.width) {
         const newx = (ball.direction.x *= -1);
         setBall((pre) => ({
           ...pre,
@@ -152,7 +154,7 @@ const GameCanvas = () => {
         }));
       }
       // top side
-      if (canvas.height - ball.y + ball.radius >= canvas.height) {
+      if (canvas.height - ball.y + ball.size >= canvas.height) {
         const newy = (ball.direction.y *= -1);
         setBall((pre) => ({
           ...pre,
@@ -227,7 +229,7 @@ const GameCanvas = () => {
     };
 
     const gameOver = () => {
-      if (ball.y >= canvas.height - (ball.size + ball.radius * 2)) {
+      if (ball.y >= canvas.height /* - (ball.size + ball.radius * 2) */) {
         setGameStatus("Ended");
       }
     };
@@ -249,16 +251,18 @@ const GameCanvas = () => {
           controller.y
         ) {
           setScore((prevScore) => prevScore + 1);
-          const newX = ball.direction.x * 1.1; // Reverse the x direction
-          const newY = ball.direction.y * -1.1; // Reverse the y direction
+          // const newX = ball.direction.x * 1; // Reverse the x direction
+          const newY = ball.direction.y * -1; // Reverse the y direction
           const newV = ball.velocity + 0.01;
           const newS = ball.speed + 0.05;
           setBall((prevBall) => ({
             ...prevBall,
             velocity: newV,
             speed: newS,
-            direction: { x: newX, y: newY },
+            y: ball.y - ball.radius,
+            direction: { ...prevBall.direction, y: newY },
           }));
+          playAudio();
         } else {
           setGameStatus("Ended");
         }
@@ -290,11 +294,11 @@ const GameCanvas = () => {
             x: Math.max(
               prevController.x -
                 Math.abs(
-                  30 +
+                  30 /* +
                     ball.speed *
                       ball.velocity *
                       ball.direction.y *
-                      ball.direction.x
+                      ball.direction.x */
                 ),
               0
             ),
@@ -308,11 +312,11 @@ const GameCanvas = () => {
             x: Math.min(
               prevController.x +
                 Math.abs(
-                  30 *
+                  30 /*  *
                     ball.speed *
                     ball.velocity *
                     ball.direction.y *
-                    ball.direction.x
+                    ball.direction.x */
                 ),
               canvas.width - prevController.width
             ),
