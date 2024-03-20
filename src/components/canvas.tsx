@@ -259,7 +259,7 @@ const GameCanvas = () => {
             ...prevBall,
             velocity: newV,
             speed: newS,
-            y: ball.y - ball.radius,
+            y: ball.y - ball.radius * 1.5,
             direction: { ...prevBall.direction, y: newY },
           }));
           playAudio();
